@@ -4,6 +4,9 @@ import { HealthModule } from './health/health.module';
 import { ConfigModule } from './config/config.module';
 import { PromModule } from '@digikare/nestjs-prom';
 import { name, version } from '../package.json';
+import { GraphQLFederationModule, GraphQLModule } from '@nestjs/graphql';
+import { GraphqlModule } from './graphql/graphql.module';
+import { GqlConfigService } from './graphql/graphql-config.service';
 
 @Module({
   imports: [
@@ -14,8 +17,16 @@ import { name, version } from '../package.json';
         version,
       },
     }),
+    GraphQLFederationModule.forRootAsync({
+      useFactory: (cfg: GqlConfigService) => {
+        return cfg.createGqlOptions();
+      },
+      imports: [GraphqlModule],
+      inject: [GqlConfigService],
+    }),
     HealthModule,
     ConfigModule,
+    GraphqlModule,
   ],
   controllers: [AppController],
   providers: [],
